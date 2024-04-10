@@ -1,55 +1,43 @@
 import {
     Body,
     Controller,
+    Get,
+    Param,
     Post,
-    ValidationPipe,
 } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { Gps } from './entity/gps.entity';
+import { GpsService } from './gps.service';
+import { GpsDto } from './dto/gps.dto';
+import { get } from 'http';
 
 @Controller('gps')
 export class GpsController {
-    constructor(
-        private readonly prismaService: PrismaService,
-    ) {}
+    constructor(private readonly gpsService: GpsService) {}
 
     @Post('receive')
-    async gps(@Body(ValidationPipe) data: any) {
-        try {
-            const {
-                location,
-                accuracy,
-                emergency,
-                timestamp,
-                id,
-                timestampReceived,
-            } = data;
-            const [lon, lat] =
-                location.coordinates;
+    async gps(@Body() data: GpsDto) {
+        return this.gpsService.createGps(data);
+    }
 
-            const savedData =
-                await this.prismaService.location.create(
-                    {
-                        data: {
-                            accuracy,
-                            emergency,
-                            timestamp,
-                            id_post: id,
-                            timestampReceived,
-                            lat,
-                            lon,
-                        },
-                    },
-                );
-            return {
-                message:
-                    'Dados salvos com sucesso',
-                data: savedData,
-            };
-        } catch (error) {
-            throw new Error(
-                'Erro ao salvar os dados: ' +
-                    error.message,
-            );
-        }
+    @Get()
+    findAll() {
+        return this.gpsService.findAll();
+    }
+
+    @Get('distinct')
+    findLastByRadio() {
+        return this.gpsService.findLastByRadio();
+    }
+
+    @Get(':id_post')
+    findOneByRadioId(@Param('id_post') id_post: string) {
+        return this.gpsService.findOneByRadioId(id_post);
+    }
+
+    @Get('last/:id_post')
+    findLastOneByRadioId(
+        @Param('id_post') id_post: string,
+    ) {
+        return this.gpsService.findOneByRadioId(id_post);
     }
 }

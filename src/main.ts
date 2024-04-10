@@ -3,16 +3,7 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
-    const app =
-        await NestFactory.create(AppModule);
-
-    // não sei exatamente porque usar isso
-    app.useGlobalPipes(
-        new ValidationPipe({
-            whitelist: true,
-        }),
-    );
-
+    const app = await NestFactory.create(AppModule);
     await app.listen(3333);
 }
 bootstrap();
